@@ -24,7 +24,6 @@ package ublock
 import (
 	"encoding/json"
 	"fmt"
-	"graph"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -33,6 +32,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	graph "github.com/tenta-browser/go-graph"
 )
 
 const (
