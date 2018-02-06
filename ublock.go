@@ -37,9 +37,10 @@ import (
 )
 
 const (
-	uBlockAssets      = "https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json"
-	compileDebugAsset = false
-	cacheValidity     = 24 * time.Hour
+	uBlockAssets       = "https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json"
+	separatorExpansion = ":/?=&"
+	compileDebugAsset  = false
+	cacheValidity      = 24 * time.Hour
 )
 
 type assetItem struct {
@@ -231,7 +232,7 @@ func (u *UBlockHelper) Search(URL string) (bool, error) {
 		return false, fmt.Errorf("graph is not initialized")
 	}
 	for i := range URL {
-		result := u.d.ExactLookupWithPayloadAndSeparator(URL[i:])
+		result := u.d.ExactLookupWithPayload(URL[i:])
 		if result.MatchStatus == graph.MatchNotFound {
 			continue
 		}
@@ -274,7 +275,7 @@ func plainSearch(d *graph.Dawg, URL string) (bool, error) {
 		return false, fmt.Errorf("Graph is not initialized.")
 	}
 	for i := range URL {
-		result := d.ExactLookupWithPayloadAndSeparator(URL[i:])
+		result := d.ExactLookupWithPayload(URL[i:])
 		if result.MatchStatus == graph.MatchNotFound {
 			continue
 		}
@@ -510,7 +511,6 @@ func constructFilter() (ret sortableGraphInput, e error) {
 				log("Parse error :: [%s:%s][%d] `%s`\n", a.name, a.contentURL, i+1, e.Error())
 				continue
 			}
-
 			if g != nil && g.token != "" {
 				if g.flags&flagWildCard > 0 {
 					temp := strings.Split(g.token, "*")
@@ -520,7 +520,15 @@ func constructFilter() (ret sortableGraphInput, e error) {
 					}
 				}
 				g.filter = a.name
-				ret = append(ret, g)
+				/// make sure the separator is still instide the token (not detached in the suffix)
+				if g.flags&flagSeparator > 0 && strings.Contains(g.token, "^") {
+					for _, sym := range separatorExpansion {
+						tempTok := strings.Replace(g.token, "^", string(sym), -1)
+						ret = append(ret, &rawGraphElement{tempTok, g.suffix, g.flags, g.original, g.filter})
+					}
+				} else { /// if no separator is present, just add the token like usual
+					ret = append(ret, g)
+				}
 			}
 		}
 	}
