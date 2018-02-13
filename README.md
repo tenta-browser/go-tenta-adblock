@@ -1,7 +1,7 @@
 Go uBlock Origin
 ================
 
-[![GoDoc](https://godoc.org/github.com/tenta-browser/go-ublock?status.svg)](https://godoc.org/github.com/tenta-browser/go-ublock-express)
+[![GoDoc](https://godoc.org/github.com/tenta-browser/go-ublock-origin-express?status.svg)](https://godoc.org/github.com/tenta-browser/go-ublock-origin-express)
 
 [uBlock](https://github.com/gorhill/uBlock) implementation in Golang.
 
