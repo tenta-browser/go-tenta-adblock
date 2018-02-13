@@ -1,7 +1,7 @@
-Go uBlock
-=========
+Go uBlock Origin
+================
 
-[![GoDoc](https://godoc.org/github.com/tenta-browser/go-ublock?status.svg)](https://godoc.org/github.com/tenta-browser/go-ublock)
+[![GoDoc](https://godoc.org/github.com/tenta-browser/go-ublock?status.svg)](https://godoc.org/github.com/tenta-browser/go-ublock-express)
 
 [uBlock](https://github.com/gorhill/uBlock) implementation in Golang.
 
@@ -15,7 +15,7 @@ Contact: developer@tenta.io
 Installation
 ============
 
-1. `go get github.com/tenta-browser/go-ublock`
+1. `go get github.com/tenta-browser/go-ublock-express`
 
 API
 ===
@@ -57,4 +57,4 @@ please open a pull request and send us an email to sign a contributor agreement.
 About Tenta
 ===========
 
-The uBlock Library is brought to you by Team Tenta. Tenta is your [private, encrypted browser](https://tenta.com) that protects your data instead of selling it. We're building a next-generation browser that combines all the privacy tools you need, including built-in OpenVPN. Everything is encrypted by default. That means your bookmarks, saved tabs, web history, web traffic, downloaded files, IP address and DNS. A truly incognito browser that's fast and easy.
+The uBlock Origin Library is brought to you by Team Tenta. Tenta is your [private, encrypted browser](https://tenta.com) that protects your data instead of selling it. We're building a next-generation browser that combines all the privacy tools you need, including built-in OpenVPN. Everything is encrypted by default. That means your bookmarks, saved tabs, web history, web traffic, downloaded files, IP address and DNS. A truly incognito browser that's fast and easy.
