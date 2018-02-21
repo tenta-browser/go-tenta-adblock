@@ -1,9 +1,7 @@
-Go uBlock Origin
+Go Tenta AdBlock
 ================
 
-[![GoDoc](https://godoc.org/github.com/tenta-browser/go-ublock-origin-express?status.svg)](https://godoc.org/github.com/tenta-browser/go-ublock-origin-express)
-
-[uBlock](https://github.com/gorhill/uBlock) implementation in Golang.
+[![GoDoc](https://godoc.org/github.com/tenta-browser/go-tenta-adblock?status.svg)](https://godoc.org/github.com/tenta-browser/go-tenta-adblock)
 
 Composes of asset construction, filtering, and compression/decompression primitives.
 Currently supporting filter definitions without options, host files.
@@ -15,7 +13,7 @@ Contact: developer@tenta.io
 Installation
 ============
 
-1. `go get github.com/tenta-browser/go-ublock-express`
+1. `go get github.com/tenta-browser/go-tenta-adblock`
 
 API
 ===
@@ -57,6 +55,6 @@ please open a pull request and send us an email to sign a contributor agreement.
 About Tenta
 ===========
 
-The uBlock Origin Library is brought to you by Team Tenta. Tenta is your [private, encrypted browser](https://tenta.com) that protects your data instead of selling it. We're building a next-generation browser that combines all the privacy tools you need, including built-in OpenVPN. Everything is encrypted by default. That means your bookmarks, saved tabs, web history, web traffic, downloaded files, IP address and DNS. A truly incognito browser that's fast and easy.
+The AdBlock library is brought to you by Team Tenta. Tenta is your [private, encrypted browser](https://tenta.com) that protects your data instead of selling it. We're building a next-generation browser that combines all the privacy tools you need, including built-in OpenVPN. Everything is encrypted by default. That means your bookmarks, saved tabs, web history, web traffic, downloaded files, IP address and DNS. A truly incognito browser that's fast and easy.
 
 **Note: This repository contains no code from the uBlock or uBlock Origin projects.**
