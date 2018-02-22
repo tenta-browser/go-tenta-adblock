@@ -23,7 +23,7 @@ Asset generation
 * `Init()`: Initialize parser
 * `AssembleRuleDatabase()`: Download and parse filters, generate embeddable uBlock asset
 
-Runtime filtering (using `UBlockHelper` struct)
+Runtime filtering
 -----------------
 * `Deserialize()`: Reconstruct binary encoded asset into memory
 * `Search()`: Search for a token (URL) for appartenance to the filtering lists
