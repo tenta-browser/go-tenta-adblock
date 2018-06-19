@@ -212,10 +212,12 @@ type UBlockHelper struct {
 
 // Deserialize -- Deserializes the graph
 func (u *UBlockHelper) Deserialize(enc []byte) *UBlockHelper {
+	localCopy := make([]byte, len(enc))
+	copy(localCopy, enc)
 	go func() {
 		u.m.Lock()
 		defer u.m.Unlock()
-		u.d = graph.Deserialize(enc, nil, &ubPayload{})
+		u.d = graph.Deserialize(localCopy, nil, &ubPayload{})
 		if u.d == nil {
 			/// log the error
 		}
