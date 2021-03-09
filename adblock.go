@@ -46,7 +46,7 @@ const (
 	uBlockAssets       = "https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json"
 	separatorExpansion = `:/?=&`
 	separatorCharClass = "[" + separatorExpansion + "]+"
-	compileDebugAsset  = true
+	compileDebugAsset  = false
 	cacheValidity      = 24 * time.Hour
 	iOSFilterCutoffNo  = 40000 // it's probably 30k, but safety first -- the number of rules that can fit into one JSON
 )
@@ -370,20 +370,20 @@ func (u *UBlockHelper) Search(URL string) (bool, error) {
 		/// evaluate the payload
 		log("We have a loaded match with [%s][%s]\n", result.Remainder, result.Payload.(*ubPayload).String())
 		if !result.Payload.(*ubPayload).Evaluate(result.Remainder) {
-			log("Reminder not evaluated.\n")
+			//log("Reminder not evaluated.\n")
 			continue
 		}
 
 		flg := result.Payload.(*ubPayload).flags
 		/// exception -> permitting access
 		if flg&flagException > 0 {
-			log("Exception -> false")
+			//log("Exception -> false")
 			return false, nil
 		}
 		/// check flag constraints vs match
 		/// absolute start/end of URL
 		if (flg&flagPipeStart > 0 && i != 0) || (flg&flagPipeEnd > 0 && result.Remainder != "") {
-			log("cannot match pipes vs remainder\n")
+			//log("cannot match pipes vs remainder\n")
 			continue
 		}
 		/// domain name start
@@ -393,7 +393,7 @@ func (u *UBlockHelper) Search(URL string) (bool, error) {
 			}
 		}
 		/// no constrain stuck, no choice but to return true
-		log("")
+		//log("")
 		proposedRet = true
 		continue
 	}
@@ -581,19 +581,19 @@ func constructAssetList(foriOS bool) error {
 
 		if !foriOS {
 
-			assetList = append(assetList, &assetListItem{
-				name:       "filter",
-				content:    "filter",
-				group:      "filter",
-				contentURL: "https://update.avastbrowser.com/adblock/filterlist.txt",
-			})
+			//assetList = append(assetList, &assetListItem{
+			//	name:       "filter",
+			//	content:    "filter",
+			//	group:      "filter",
+			//	contentURL: "https://update.avastbrowser.com/adblock/filterlist.txt",
+			//})
 
-			assetList = append(assetList, &assetListItem{
-				name:       "aas",
-				content:    "aas",
-				group:      "aas",
-				contentURL: "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
-			})
+			//assetList = append(assetList, &assetListItem{
+			//	name:       "aas",
+			//	content:    "aas",
+			//	group:      "aas",
+			//	contentURL: "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
+			//})
 
 			//if customListURL != "" {
 			//	assetList = append(assetList, &assetListItem{
@@ -824,7 +824,17 @@ func constructFilter() (ret sortableGraphInput, e error) {
 		"&ctxId=",
 		"&ctxId=asd&pubId=qwe&objId=zxc",
 		"shoudntmmatch",
-		".com/js/ga-123qweasd^.js", "www.doubleclick.net", "sjs.bizographics.com", "http://buysellads.com/ac/bsa.js", "https://pixiedust.buzzfeed.com/events", "https://www.gstatic.com/kpui/social/fb_32x32.png", "https://www.yahoo.com/lib/metro/g/myy/advertisement_0.0.19.js", "https://s.yimg.com/dy/ads/native.js", "http://buysellads.com/ac/bsa.js"}
+		".com/js/ga-123qweasd^.js",
+		"www.doubleclick.net",
+		"sjs.bizographics.com",
+		"http://buysellads.com/ac/bsa.js",
+		"https://pixiedust.buzzfeed.com/events",
+		"https://www.gstatic.com/kpui/social/fb_32x32.png",
+		"https://www.yahoo.com/lib/metro/g/myy/advertisement_0.0.19.js",
+		"https://s.yimg.com/dy/ads/native.js",
+		"http://buysellads.com/ac/bsa.js",
+		"https://jill.fc.yahoo.com/v1/client/js?tagType=async",
+		"https://sp.analytics.yahoo.com/sp.pl?a=10000&d=Fri%2C%2005%20Mar%202021%2005%3A14%3A48%20GMT&n=-2&ea=page_view"}
 	for _, t := range tests {
 		st := time.Now()
 		ret, _ := test.Search(t)
