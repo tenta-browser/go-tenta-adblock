@@ -46,9 +46,9 @@ const (
 	uBlockAssets       = "https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json"
 	separatorExpansion = `:/?=&`
 	separatorCharClass = "[" + separatorExpansion + "]+"
-	compileDebugAsset  = false
+	compileDebugAsset  = true
 	cacheValidity      = 24 * time.Hour
-	iOSFilterCutoffNo  = 40000 // the number of rules that can fit into one JSON
+	iOSFilterCutoffNo  = 40000 // it's probably 30k, but safety first -- the number of rules that can fit into one JSON
 )
 
 type assetItem struct {
@@ -349,6 +349,7 @@ func (u *UBlockHelper) Deserialize(enc []byte) *UBlockHelper {
 
 // Search -- returns true if networking should block request, false otherwise
 func (u *UBlockHelper) Search(URL string) (bool, error) {
+	proposedRet := false
 	u.m.Lock()
 	defer u.m.Unlock()
 	if u.d == nil {
@@ -362,22 +363,27 @@ func (u *UBlockHelper) Search(URL string) (bool, error) {
 		/// verify the result
 		/// no payload -> no constraint over match, return true
 		if result.Payload == nil {
-			return true, nil
+			//return true, nil
+			proposedRet = true
+			continue
 		}
 		/// evaluate the payload
 		log("We have a loaded match with [%s][%s]\n", result.Remainder, result.Payload.(*ubPayload).String())
 		if !result.Payload.(*ubPayload).Evaluate(result.Remainder) {
+			log("Reminder not evaluated.\n")
 			continue
 		}
 
 		flg := result.Payload.(*ubPayload).flags
 		/// exception -> permitting access
 		if flg&flagException > 0 {
+			log("Exception -> false")
 			return false, nil
 		}
 		/// check flag constraints vs match
 		/// absolute start/end of URL
 		if (flg&flagPipeStart > 0 && i != 0) || (flg&flagPipeEnd > 0 && result.Remainder != "") {
+			log("cannot match pipes vs remainder\n")
 			continue
 		}
 		/// domain name start
@@ -387,17 +393,21 @@ func (u *UBlockHelper) Search(URL string) (bool, error) {
 			}
 		}
 		/// no constrain stuck, no choice but to return true
-		return true, nil
+		log("")
+		proposedRet = true
+		continue
 	}
-	return false, nil
+	return proposedRet, nil
 }
 
 /// search, using debug payloads (TODO: add interface type checking to UBlockHelper functions, and ubDebugPayload encode/decode implementation)
 func plainSearch(d *graph.Dawg, URL string) (bool, error) {
+	proposedRet := false
 	if d == nil {
 		return false, fmt.Errorf("Graph is not initialized.")
 	}
 	for i := range URL {
+		log("doing exact lookup for [%s]", URL[i:])
 		result := d.ExactLookupWithPayload(URL[i:])
 		if result.MatchStatus == graph.MatchNotFound {
 			continue
@@ -406,17 +416,21 @@ func plainSearch(d *graph.Dawg, URL string) (bool, error) {
 		/// no payload -> no constraint over match, return true
 		if result.Payload == nil {
 			log("returning true for [%s]\n", URL[i:])
-			return true, nil
+			//return true, nil
+			proposedRet = true
+			continue
 		}
 		/// evaluate the payload
 		log("We have a loaded match with [%s][%s]\n", result.Remainder, result.Payload.(*ubDebugPayload).String())
 		if !result.Payload.(*ubDebugPayload).Evaluate(result.Remainder) {
+			log("remainder does not evaluate\n")
 			continue
 		}
 
 		flg := result.Payload.(*ubDebugPayload).flags
 		/// exception -> permitting access
 		if flg&flagException > 0 {
+			log("returning false, reason exception\n")
 			return false, nil
 		}
 		/// check flag constraints vs match
@@ -433,10 +447,10 @@ func plainSearch(d *graph.Dawg, URL string) (bool, error) {
 		}
 		/// no constrain stuck, no choice but to return true
 		log("Search true -- from [%s]\n", result.Payload.(*ubDebugPayload).original)
-
-		return true, nil
+		proposedRet = true
+		//return true, nil
 	}
-	return false, nil
+	return proposedRet, nil
 }
 
 /// implement sort functions for graph input
@@ -581,14 +595,14 @@ func constructAssetList(foriOS bool) error {
 				contentURL: "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
 			})
 
-			if customListURL != "" {
-				assetList = append(assetList, &assetListItem{
-					name:       "asbexception",
-					content:    "asbexception",
-					group:      "asbexception",
-					contentURL: customListURL,
-				})
-			}
+			//if customListURL != "" {
+			//	assetList = append(assetList, &assetListItem{
+			//		name:       "asbexception",
+			//		content:    "asbexception",
+			//		group:      "asbexception",
+			//		contentURL: customListURL,
+			//	})
+			//}
 		}
 	} else {
 		assetList = []*assetListItem{&assetListItem{
@@ -726,6 +740,9 @@ func constructFilter() (ret sortableGraphInput, e error) {
 				continue
 			}
 			if g != nil && g.token != "" {
+				if strings.Contains(g.token, "buysellads") {
+					log("[CHECK]:: [%s] [%s] [%s]\n", g.token, g.original, formatFlags(g.flags))
+				}
 				if g.flags&flagWildCard > 0 {
 					temp := strings.Split(g.token, "*")
 					if len(temp) >= 2 {
@@ -797,7 +814,7 @@ func constructFilter() (ret sortableGraphInput, e error) {
 	}
 	d.Finish()
 	log("Constructed. [%d] and [%d] are the stats, out of [%d]/[%d] characters\n", d.EdgeCount(), d.NodeCount(), charCount, wcCount)
-	log("Flushing graph asset to %s\n", assetFilename)
+	log("Flushing graph asset to %s\n\n", assetFilename)
 	c := d.Serialize(assetFilename)
 
 	test := UBlockHelper{}
@@ -807,12 +824,12 @@ func constructFilter() (ret sortableGraphInput, e error) {
 		"&ctxId=",
 		"&ctxId=asd&pubId=qwe&objId=zxc",
 		"shoudntmmatch",
-		".com/js/ga-123qweasd^.js", "www.doubleclick.net", "https://youtube.com"}
+		".com/js/ga-123qweasd^.js", "www.doubleclick.net", "sjs.bizographics.com", "http://buysellads.com/ac/bsa.js", "https://pixiedust.buzzfeed.com/events", "https://www.gstatic.com/kpui/social/fb_32x32.png", "https://www.yahoo.com/lib/metro/g/myy/advertisement_0.0.19.js", "https://s.yimg.com/dy/ads/native.js", "http://buysellads.com/ac/bsa.js"}
 	for _, t := range tests {
 		st := time.Now()
 		ret, _ := test.Search(t)
 		//ret, _ := plainSearch(d, t)
-		log("Test is [%v] -- [%v] [%s]\n", time.Now().Sub(st), ret, t)//, graph.MatchStatusToString[res.MatchStatus], res.Remainder, res.Payload)
+		log("Test is [%v] -- [%v] [%s]\n\n", time.Now().Sub(st), ret, t)//, graph.MatchStatusToString[res.MatchStatus], res.Remainder, res.Payload)
 	}
 
 	return uniqueRet, nil
