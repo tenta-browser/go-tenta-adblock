@@ -1,0 +1,6 @@
+github.com/golang/snappy v0.0.3 h1:fHPg5GQYlCeLIPB9BZqMVR5nR9A+IM5zcgeTdjMYmLA=
+github.com/golang/snappy v0.0.3/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
+github.com/tenta-browser/go-bitstream-ops v0.0.0-20170922093711-17e38e70315b h1:cgoHXORcS6dkA6oZqseKiW61g9tNA7EDNzK2Ef+BSmU=
+github.com/tenta-browser/go-bitstream-ops v0.0.0-20170922093711-17e38e70315b/go.mod h1:6LfFkjdSkbqkUfnxmUj+b0wgDMM9hBJNIKBS1O+1Ejo=
+github.com/tenta-browser/go-graph v0.0.0-20210309185958-08e1cb7e416f h1:JyF+2hUCeMozVtt7G2f2MeBMQlQd+8v5r73x3LsA4Sc=
+github.com/tenta-browser/go-graph v0.0.0-20210309185958-08e1cb7e416f/go.mod h1:QsW4EAgR9ql8KMGOiKtaENsr0CltyNXP9CKZSHzUdFo=
