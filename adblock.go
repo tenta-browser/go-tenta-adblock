@@ -22,8 +22,6 @@ package ublock
 
 import (
 	"fmt"
-	"net/http"
-	"time"
 )
 
 var (
@@ -31,31 +29,6 @@ var (
 	cfg         *Config
 	initialized = false
 )
-
-type Config struct {
-	CompileDebugAsset bool          // use debug assets when building non-iOS filters
-	CacheValidity     time.Duration // TTL for cached files on disk
-	IOSFilterCutoffNo uint32        // the number of rules that can fit into one JSON
-	HttpClient        *http.Client  // HTTP client used to download all assets
-	assetsUrl         string        // asset list's URL
-	isCustomUrl       bool          // indicates if the assetsUrl is a custom URL or the default one (from uBlock)
-}
-
-// sets a custom asset URL
-func (c *Config) SetCustomUrl(url string) {
-	c.isCustomUrl = true
-	c.assetsUrl = url
-}
-
-func DefaultConfig() *Config {
-	return &Config{
-		CompileDebugAsset: false,
-		CacheValidity:     24 * time.Hour,
-		IOSFilterCutoffNo: 40000, // it's probably 30k, but safety first -- the number of rules that can fit into one JSON
-		HttpClient:        http.DefaultClient,
-		assetsUrl:         "https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json",
-	}
-}
 
 // Init - initialize for the export side of operations
 //
@@ -95,7 +68,7 @@ func Build(outputPath string, forIOS bool) (err error) {
 
 	// download and build the ruleset list
 	var assetList []*assetListItem
-	if assetList, err = constructAssetList(cfg.HttpClient, cache, cfg.assetsUrl, cfg.isCustomUrl, forIOS); err != nil {
+	if assetList, err = constructAssetList(cache, forIOS, cfg); err != nil {
 		return err
 	}
 

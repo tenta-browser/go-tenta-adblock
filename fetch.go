@@ -88,13 +88,13 @@ func fetchText(hc *http.Client, as *assetCache, url string) (string, error) {
 }
 
 // downloads and constructs the assets list
-func constructAssetList(hc *http.Client, as *assetCache, listUrl string, isCustomUrl bool, foriOS bool) (assetList []*assetListItem, err error) {
-	if foriOS && isCustomUrl {
+func constructAssetList(as *assetCache, foriOS bool, cfg *Config) (assetList []*assetListItem, err error) {
+	if foriOS && cfg.isCustomUrl {
 		assetList = []*assetListItem{{
-			name:       listUrl,
+			name:       cfg.assetsUrl,
 			content:    "custom",
 			group:      "custom",
-			contentURL: listUrl,
+			contentURL: cfg.assetsUrl,
 		}}
 
 		return
@@ -103,7 +103,7 @@ func constructAssetList(hc *http.Client, as *assetCache, listUrl string, isCusto
 	assetList = make([]*assetListItem, 0)
 	assets := make(map[string]assetItem)
 	var data string
-	if data, err = fetchText(hc, as, listUrl); err != nil {
+	if data, err = fetchText(cfg.HttpClient, as, cfg.assetsUrl); err != nil {
 		return
 	}
 
@@ -135,30 +135,45 @@ func constructAssetList(hc *http.Client, as *assetCache, listUrl string, isCusto
 		}
 	}
 
-	if !foriOS {
-		//assetList = append(assetList, &assetListItem{
-		//	name:       "filter",
-		//	content:    "filter",
-		//	group:      "filter",
-		//	contentURL: "https://update.avastbrowser.com/adblock/filterlist.txt",
-		//})
-
-		//assetList = append(assetList, &assetListItem{
-		//	name:       "aas",
-		//	content:    "aas",
-		//	group:      "aas",
-		//	contentURL: "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
-		//})
-
-		//if customListURL != "" {
-		//	assetList = append(assetList, &assetListItem{
-		//		name:       "asbexception",
-		//		content:    "asbexception",
-		//		group:      "asbexception",
-		//		contentURL: customListURL,
-		//	})
-		//}
+	if foriOS {
+		return
 	}
+
+	log("  Active profile: [%s]", cfg.Profile)
+	switch cfg.Profile {
+	case ProfileTypeEssential:
+		assetList = append(assetList, &assetListItem{
+			name:       "aas",
+			content:    "aas",
+			group:      "aas",
+			contentURL: "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
+		})
+		fallthrough
+
+	case ProfileTypeBalanced:
+		assetList = append(assetList, &assetListItem{
+			name:       "filter",
+			content:    "filter",
+			group:      "filter",
+			contentURL: "https://update.avastbrowser.com/adblock/filterlist.txt",
+		})
+		fallthrough
+
+	case ProfileTypeStrict:
+		// don't add anything, listUrl is the most restrictive list
+
+	default:
+		panic("unknown profile")
+	}
+
+	//if customListURL != "" {
+	//	assetList = append(assetList, &assetListItem{
+	//		name:       "asbexception",
+	//		content:    "asbexception",
+	//		group:      "asbexception",
+	//		contentURL: customListURL,
+	//	})
+	//}
 
 	return
 }
